@@ -1,3 +1,6 @@
+🔗 [View Source Code](https://github.com/qaisaraM/PALLET-INSPECTION-SYSTEM)  
+🌐 [Live Demo](https://qaisaram.github.io/PALLET-INSPECTION-SYSTEM/)
+
 <div align="center">
 
 # ⚡ PALLET INSPECTION SYSTEM
