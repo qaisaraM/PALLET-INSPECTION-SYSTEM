@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PALLET INSPECTION SYSTEM</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --black: #080A0C;
+    --panel: #0E1215;
+    --border: #1E2830;
+    --dim: #1A2530;
+    --green: #00C896;
+    --green-dim: #00916E;
+    --green-glow: rgba(0,200,150,0.12);
+    --orange: #FF6B35;
+    --orange-dim: #C44E20;
+    --yellow: #F5C842;
+    --blue: #3B8BEB;
+    --text: #C8D4DC;
+    --text-dim: #607080;
+    --text-bright: #EDF4F8;
+    --mono: 'Share Tech Mono', monospace;
+    --head: 'Barlow Condensed', sans-serif;
+    --body: 'Barlow', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--body);
+    font-weight: 300;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Scan line overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: relative;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 40px 50px;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 3px;
+    background: linear-gradient(90deg, var(--green), var(--orange), var(--green));
+    background-size: 300% 100%;
+    animation: shimmer 4s linear infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 300% 0%; }
+  }
+
+  .header-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .header-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px; height: 1px;
+    background: var(--green);
+  }
+
+  h1 {
+    font-family: var(--head);
+    font-weight: 900;
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 0.95;
+    color: var(--text-bright);
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  h1 span { color: var(--green); }
+
+  .header-sub {
+    font-family: var(--head);
+    font-weight: 300;
+    font-size: 18px;
+    letter-spacing: 0.04em;
+    color: var(--text-dim);
+    margin-bottom: 28px;
+  }
+
+  .header-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 5px 10px;
+    border: 1px solid;
+    text-transform: uppercase;
+  }
+
+  .badge-green { border-color: var(--green); color: var(--green); background: rgba(0,200,150,0.06); }
+  .badge-orange { border-color: var(--orange); color: var(--orange); background: rgba(255,107,53,0.06); }
+  .badge-blue { border-color: var(--blue); color: var(--blue); background: rgba(59,139,235,0.06); }
+  .badge-yellow { border-color: var(--yellow); color: var(--yellow); background: rgba(245,200,66,0.06); }
+
+  .live-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .live-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 0 rgba(0,200,150,0.6);
+    animation: pulse 2s ease-out infinite;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0,200,150,0.6); }
+    70% { box-shadow: 0 0 0 14px rgba(0,200,150,0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,200,150,0); }
+  }
+
+  .live-text {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--green);
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    text-transform: uppercase;
+  }
+
+  /* ─── HERO STAT BAR ─── */
+  .stat-bar {
+    background: var(--dim);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .stat-bar-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .stat-item {
+    padding: 28px 32px;
+    border-right: 1px solid var(--border);
+    position: relative;
+    transition: background 0.2s;
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-item:hover { background: var(--panel); }
+
+  .stat-val {
+    font-family: var(--head);
+    font-weight: 900;
+    font-size: 42px;
+    line-height: 1;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+  }
+  .stat-val.green { color: var(--green); }
+  .stat-val.orange { color: var(--orange); }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  /* ─── LAYOUT ─── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+  }
+
+  section {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-tag::before {
+    content: '';
+    display: inline-block;
+    width: 16px; height: 1px;
+    background: var(--orange);
+  }
+
+  h2 {
+    font-family: var(--head);
+    font-weight: 900;
+    font-size: clamp(28px, 4vw, 44px);
+    color: var(--text-bright);
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    margin-bottom: 24px;
+  }
+
+  h3 {
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--text-bright);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  p { margin-bottom: 16px; color: var(--text); font-size: 15px; }
+
+  /* ─── PIPELINE ─── */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 32px 0;
+    position: relative;
+  }
+
+  .pipeline::before {
+    content: '';
+    position: absolute;
+    left: 27px; top: 28px; bottom: 28px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--green) 0%, var(--orange) 100%);
+    opacity: 0.4;
+  }
+
+  .pipeline-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px 0;
+    position: relative;
+  }
+
+  .step-num {
+    width: 56px; height: 56px;
+    border: 2px solid var(--green);
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 18px;
+    color: var(--green);
+    background: var(--panel);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .pipeline-step:hover .step-num {
+    background: var(--green);
+    color: var(--black);
+  }
+
+  .step-body { padding-top: 6px; }
+  .step-title {
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text-bright);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .step-desc { font-size: 14px; color: var(--text-dim); }
+
+  /* ─── CODE BLOCK ─── */
+  pre {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    padding: 20px 24px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--green);
+    overflow-x: auto;
+    line-height: 1.7;
+    margin: 20px 0;
+  }
+
+  pre .comment { color: var(--text-dim); }
+  pre .keyword { color: var(--orange); }
+  pre .string { color: var(--yellow); }
+
+  /* ─── IMPACT TABLE ─── */
+  .impact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  .impact-row {
+    display: contents;
+  }
+
+  .impact-cell {
+    background: var(--panel);
+    padding: 20px 24px;
+  }
+
+  .impact-header {
+    background: var(--dim);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .impact-before {
+    color: var(--text-dim);
+    font-size: 15px;
+    text-decoration: line-through;
+    text-decoration-color: var(--orange-dim);
+  }
+
+  .impact-after {
+    color: var(--green);
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 0.02em;
+  }
+
+  .impact-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ─── MODES ─── */
+  .modes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+
+  .mode-card {
+    background: var(--panel);
+    padding: 28px 24px;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mode-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .mode-card:nth-child(1)::before { background: var(--blue); }
+  .mode-card:nth-child(2)::before { background: var(--orange); }
+  .mode-card:nth-child(3)::before { background: var(--green); }
+
+  .mode-card:hover { background: var(--dim); }
+
+  .mode-num {
+    font-family: var(--head);
+    font-weight: 900;
+    font-size: 52px;
+    line-height: 1;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+    opacity: 0.15;
+    position: absolute;
+    bottom: 12px;
+    right: 16px;
+  }
+
+  .mode-title {
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--text-bright);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .mode-slots {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+  .mode-strategy {
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  /* ─── FEATURES ─── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+    background: var(--border);
+    margin: 32px 0;
+  }
+
+  .feature-card {
+    background: var(--panel);
+    padding: 28px;
+    transition: background 0.2s;
+  }
+  .feature-card:hover { background: var(--dim); }
+
+  .feature-icon {
+    font-size: 22px;
+    margin-bottom: 12px;
+  }
+
+  /* ─── TECH STACK ─── */
+  .tech-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+
+  .tech-item {
+    background: var(--panel);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+  }
+  .tech-item:hover { background: var(--dim); }
+
+  .tech-category {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .tech-name {
+    font-family: var(--head);
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* ─── ARCHITECTURE ─── */
+  .arch-diagram {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 32px;
+    margin: 24px 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.8;
+    overflow-x: auto;
+  }
+
+  .arch-box {
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    margin: 8px 0;
+    position: relative;
+  }
+
+  .arch-box.primary { border-color: var(--green); }
+  .arch-box.secondary { border-color: var(--border); }
+
+  .arch-arrow {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  /* ─── FUTURE ─── */
+  .future-list {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0;
+  }
+
+  .future-list li {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 15px;
+    color: var(--text);
+    transition: color 0.2s;
+  }
+
+  .future-list li:hover { color: var(--text-bright); }
+
+  .future-list li::before {
+    content: '→';
+    font-family: var(--mono);
+    color: var(--green);
+    flex-shrink: 0;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    padding: 48px 40px;
+    text-align: center;
+  }
+
+  .footer-inner { max-width: 1100px; margin: 0 auto; }
+
+  .footer-title {
+    font-family: var(--head);
+    font-weight: 900;
+    font-size: 36px;
+    color: var(--text-bright);
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+
+  .footer-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  .footer-links a {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-decoration: none;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--green); border-color: var(--green); }
+
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(8,10,12,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+  }
+
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    height: 48px;
+  }
+
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-right: auto;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--green); }
+
+  .nav-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 0.1em;
+  }
+
+  .nav-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s ease-out infinite;
+  }
+
+  /* ─── OFFSET FOR NAV ─── */
+  header { padding-top: 110px; }
+
+  /* ─── HIGHLIGHT ─── */
+  .hl { color: var(--green); }
+  .hl-orange { color: var(--orange); }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), var(--green-dim), var(--border));
+    margin: 32px 0;
+    opacity: 0.5;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 700px) {
+    main { padding: 0 20px 60px; }
+    header { padding: 80px 20px 40px; }
+    nav { padding: 0 20px; }
+    .header-grid { grid-template-columns: 1fr; }
+    .stat-bar-inner { grid-template-columns: repeat(2, 1fr); }
+    .impact-grid, .features-grid, .tech-list { grid-template-columns: 1fr; }
+    .modes-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <span class="nav-logo">⚡ PIS</span>
+    <ul class="nav-links">
+      <li><a href="#problem">Problem</a></li>
+      <li><a href="#pipeline">Pipeline</a></li>
+      <li><a href="#modes">Modes</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#stack">Stack</a></li>
+    </ul>
+    <div class="nav-status">
+      <div class="nav-dot"></div>
+      LIVE ON FACTORY FLOOR
+    </div>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<header>
+  <div class="header-grid">
+    <div>
+      <div class="header-eyebrow">Industrial AI Vision System</div>
+      <h1>Pallet<br/><span>Inspection</span><br/>System</h1>
+      <div class="header-sub">From 2-minute manual counting → to 5-second AI inspection.</div>
+      <div class="header-badges">
+        <span class="badge badge-green">YOLOv8 Detection</span>
+        <span class="badge badge-orange">Python 3.10+</span>
+        <span class="badge badge-blue">OpenCV Vision</span>
+        <span class="badge badge-yellow">PyQt5 GUI</span>
+        <span class="badge badge-green">Production Deployed</span>
+      </div>
+    </div>
+    <div class="live-indicator">
+      <div class="live-dot"></div>
+      <div class="live-text">System Active</div>
+    </div>
+  </div>
+</header>
+
+<!-- STAT BAR -->
+<div class="stat-bar">
+  <div class="stat-bar-inner">
+    <div class="stat-item">
+      <div class="stat-val green">&lt;5s</div>
+      <div class="stat-label">Inspection Cycle</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val orange">24×</div>
+      <div class="stat-label">Faster Than Manual</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">1000</div>
+      <div class="stat-label">Max Slots Detected</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val green">3</div>
+      <div class="stat-label">Detection Stages</div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- PROBLEM -->
+  <section id="problem">
+    <div class="section-tag">The Challenge</div>
+    <h2>Manual Counting<br/>at Industrial Scale</h2>
+    <p>Imagine counting <strong style="color:var(--text-bright)">500 tiny parts</strong> on every pallet. Then repeating that for an entire shift — every shift, every day.</p>
+
+    <div class="impact-grid">
+      <div class="impact-cell impact-header">Metric</div>
+      <div class="impact-cell impact-header">Before → After</div>
+
+      <div class="impact-cell"><div class="impact-label">Inspection Time</div></div>
+      <div class="impact-cell">
+        <span class="impact-before">~2 minutes</span>
+        &nbsp;→&nbsp;
+        <span class="impact-after">&lt; 5 seconds</span>
+      </div>
+
+      <div class="impact-cell"><div class="impact-label">Human Error</div></div>
+      <div class="impact-cell">
+        <span class="impact-before">Variable / High</span>
+        &nbsp;→&nbsp;
+        <span class="impact-after">Near-Zero</span>
+      </div>
+
+      <div class="impact-cell"><div class="impact-label">Record Keeping</div></div>
+      <div class="impact-cell">
+        <span class="impact-before">Manual Logs</span>
+        &nbsp;→&nbsp;
+        <span class="impact-after">Automatic Excel</span>
+      </div>
+
+      <div class="impact-cell"><div class="impact-label">Throughput</div></div>
+      <div class="impact-cell">
+        <span class="impact-before">Operator-Limited</span>
+        &nbsp;→&nbsp;
+        <span class="impact-after">Scalable</span>
+      </div>
+
+      <div class="impact-cell"><div class="impact-label">Repeatability</div></div>
+      <div class="impact-cell">
+        <span class="impact-before">Inconsistent</span>
+        &nbsp;→&nbsp;
+        <span class="impact-after">Standardized</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PIPELINE -->
+  <section id="pipeline">
+    <div class="section-tag">Detection Pipeline</div>
+    <h2>Multi-Layer<br/>Vision System</h2>
+    <p>Production environments are messy. Lighting changes. Parts reflect. Slots get occluded. <span class="hl">Pure YOLO isn't enough.</span> SYSTEM combines AI + rule-based spatial reasoning.</p>
+
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Camera Feed</div>
+          <div class="step-desc">Hikrobot GigE / USB3 Vision industrial camera. Real-time frame acquisition via MVS SDK.</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">YOLOv8 Detection</div>
+          <div class="step-desc">Custom-trained model detects filled or empty slots. Configurable confidence & IOU thresholds per pallet mode.</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">Grid Gap Inference</div>
+          <div class="step-desc">Spatial clustering reconstructs pallet grid. Missing cells inferred from tray geometry. Yellow overlays mark missing slots.</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">OpenCV Validation</div>
+          <div class="step-desc">Hough Circle Transform + Blob Detection. IOU cross-validation with YOLO catches missed parts. Duplicate suppression.</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">05</div>
+        <div class="step-body">
+          <div class="step-title">Auto Count + Report</div>
+          <div class="step-desc">Automatic judgement rendered. Screenshot captured. Excel log generated instantly.</div>
+        </div>
+      </div>
+    </div>
+
+    <pre><span class="comment"># Core inference call</span>
+results = model(frame, <span class="keyword">conf</span>=<span class="string">0.25</span>, <span class="keyword">iou</span>=<span class="string">0.45</span>)
+
+<span class="comment"># Dynamic formula switching by mode</span>
+<span class="keyword">if</span>   mode == <span class="string">"100"</span>:  parts = detections
+<span class="keyword">elif</span> mode == <span class="string">"500"</span>:  parts = 500  - blanks
+<span class="keyword">elif</span> mode == <span class="string">"1000"</span>: parts = 1000 - blanks</pre>
+  </section>
+
+  <!-- MODES -->
+  <section id="modes">
+    <div class="section-tag">Pallet Modes</div>
+    <h2>Three Pallet<br/>Configurations</h2>
+    <p>Switching modes automatically resets grid state, clears detection history, updates counters, and reloads thresholds. <span class="hl">No restart required.</span></p>
+
+    <div class="modes-grid">
+      <div class="mode-card">
+        <div class="mode-title">100-Pallet</div>
+        <div class="mode-slots">100 SLOTS</div>
+        <div class="mode-strategy">Detects filled parts directly. Count = detections.</div>
+        <div class="mode-num">100</div>
+      </div>
+      <div class="mode-card">
+        <div class="mode-title">500-Pallet</div>
+        <div class="mode-slots">500 SLOTS</div>
+        <div class="mode-strategy">Detects empty blanks. Count = 500 − blanks.</div>
+        <div class="mode-num">500</div>
+      </div>
+      <div class="mode-card">
+        <div class="mode-title">1000-Pallet</div>
+        <div class="mode-slots">1000 SLOTS</div>
+        <div class="mode-strategy">Detects empty blanks. Count = 1000 − blanks.</div>
+        <div class="mode-num">1K</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="section-tag">Engineering Features</div>
+    <h2>Built for the<br/>Factory Floor</h2>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔋</div>
+        <h3>Power Suspend Recovery</h3>
+        <p>Win32 <code style="color:var(--green);font-family:var(--mono);font-size:12px">WM_POWERBROADCAST</code> listener. Camera shuts down gracefully on sleep, reconnects automatically on resume. Zero operator intervention.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔥</div>
+        <h3>Live Excel Hot Reload</h3>
+        <p>QFileSystemWatcher detects database changes while the app runs. Part codes, operator names — all update in real time with 100ms debounce protection.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">↩</div>
+        <h3>Atomic Undo Stack</h3>
+        <p>Every count stores full application state. Undo restores part quantity, totals, LCD counters, and judgement state — atomically.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⌨</div>
+        <h3>Operator-Friendly UI</h3>
+        <p>Touchscreen support, on-screen keyboard, smart autocomplete, large buttons for gloves. Fullscreen operation. Color-coded counters. Built for real humans.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section id="architecture">
+    <div class="section-tag">System Architecture</div>
+    <h2>Runtime<br/>Pipeline</h2>
+
+    <div class="arch-diagram">
+<pre style="background:transparent;border:none;padding:0;color:var(--text);font-size:12px;line-height:2">
+  <span style="color:var(--green)">┌─────────────────────────────┐</span>
+  <span style="color:var(--green)">│  Hikrobot Industrial Camera │</span>  GigE / USB3 Vision
+  <span style="color:var(--green)">└──────────────┬──────────────┘</span>
+                │
+                ▼
+  <span style="color:var(--blue)">┌─────────────────────────────┐</span>
+  <span style="color:var(--blue)">│     camera_wrapper.py       │</span>  MVS SDK · Auto reconnect
+  <span style="color:var(--blue)">└──────────────┬──────────────┘</span>
+                │
+                ▼
+  <span style="color:var(--blue)">┌─────────────────────────────┐</span>
+  <span style="color:var(--blue)">│     camera_worker.py        │</span>  Frame grab · Preprocess · QThread
+  <span style="color:var(--blue)">└──────────────┬──────────────┘</span>
+                │
+                ▼
+  <span style="color:var(--orange)">┌─────────────────────────────┐</span>
+  <span style="color:var(--orange)">│       yolo_infer.py         │</span>
+  <span style="color:var(--orange)">│                             │</span>
+  <span style="color:var(--orange)">│  1. YOLOv8 Detection        │</span>
+  <span style="color:var(--orange)">│  2. Grid Gap Inference      │</span>
+  <span style="color:var(--orange)">│  3. OpenCV Validation       │</span>
+  <span style="color:var(--orange)">└──────────────┬──────────────┘</span>
+                │
+                ▼
+  <span style="color:var(--green)">┌─────────────────────────────┐</span>
+  <span style="color:var(--green)">│          GUI.py             │</span>  Live display · Controls · Judgement
+  <span style="color:var(--green)">└───────┬──────────┬──────────┘</span>
+         │          │
+         ▼          ▼
+  <span style="color:var(--yellow)">actions.py    Data + Files</span>
+  <span style="color:var(--text-dim)">Count/Save    Excel · Screenshots</span>
+  <span style="color:var(--text-dim)">Undo/Reset    Hot Reload · Logs</span>
+</pre>
+    </div>
+
+    <pre><span class="comment"># Project structure</span>
+pallet_system/
+├── main.py          <span class="comment"># Bootstrap + model loading</span>
+├── code/
+│   ├── GUI.py
+│   ├── camera_wrapper.py
+│   ├── camera_worker.py
+│   ├── yolo_infer.py
+│   ├── actions.py
+│   └── exceptions.py
+├── utils/
+│   ├── file_utils.py
+│   └── keyboard_utils.py
+├── SetRecord/       <span class="comment"># Runtime Excel DBs</span>
+└── runs/            <span class="comment"># YOLO training outputs</span></pre>
+  </section>
+
+  <!-- STACK -->
+  <section id="stack">
+    <div class="section-tag">Technology</div>
+    <h2>Tech<br/>Stack</h2>
+
+    <div class="tech-list">
+      <div class="tech-item">
+        <span class="tech-category">Language</span>
+        <span class="tech-name">Python 3.10+</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-category">AI Detection</span>
+        <span class="tech-name">YOLOv8</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-category">Computer Vision</span>
+        <span class="tech-name">OpenCV</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-category">GUI</span>
+        <span class="tech-name">PyQt5</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-category">Camera SDK</span>
+        <span class="tech-name">Hikrobot MVS</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-category">Excel I/O</span>
+        <span class="tech-name">pandas + openpyxl</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-category">Secondary Detection</span>
+        <span class="tech-name">HoughCircles + Blob</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-category">Deployment</span>
+        <span class="tech-name">PyInstaller</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- LESSONS -->
+  <section id="lessons">
+    <div class="section-tag">Key Lessons</div>
+    <h2>What We<br/>Learned</h2>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>AI Alone Is Not Enough</h3>
+        <p>Structured industrial environments benefit massively from hybrid systems. Neural detection + spatial logic + rule validation outperforms any single approach.</p>
+        <pre style="font-size:11px;margin-top:12px">Neural + Spatial + Rules</pre>
+      </div>
+      <div class="feature-card">
+        <h3>Hardware Integration Is Hard</h3>
+        <p>Industrial cameras introduce driver failures, suspend/resume issues, packet loss, and timing edge cases. Recovery logic matters as much as ML accuracy.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Real Operators Shape Product</h3>
+        <p>Autocomplete, undo, large buttons, touchscreen support, visual feedback — these weren't "nice-to-have". They were essential for real-world deployment.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Geometry Is a Signal</h3>
+        <p>Industrial trays are highly structured. Spatial relationships between slots become a powerful secondary validation layer beyond pure neural detection.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUTURE -->
+  <section>
+    <div class="section-tag">Roadmap</div>
+    <h2>Future<br/>Improvements</h2>
+    <ul class="future-list">
+      <li>Multi-camera synchronization across production lines</li>
+      <li>Centralized production dashboard with live monitoring</li>
+      <li>Statistical defect analytics and trend reporting</li>
+      <li>Active-learning retraining pipeline for continuous improvement</li>
+      <li>Remote monitoring interface for supervisors</li>
+      <li>Real-time alert notifications on anomalies</li>
+    </ul>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-title">⚡ SYSTEM</div>
+    <div class="footer-sub">Industrial AI built for the real world.</div>
+    <div class="footer-links">
+      <a href="#">LinkedIn</a>
+      <a href="#">Portfolio</a>
+      <a href="#">GitHub</a>
+    </div>
+    <div class="footer-copy">Built with precision · Deployed in production</div>
+  </div>
+</footer>
+
+<script>
+  // Intersection Observer for scroll reveals
+  const sections = document.querySelectorAll('section');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.08 });
+  sections.forEach(s => observer.observe(s));
+
+  // Stagger pipeline steps
+  document.querySelectorAll('.pipeline-step').forEach((step, i) => {
+    step.style.transitionDelay = `${i * 80}ms`;
+  });
+
+  // Animated counters for stat bar
+  function animateCount(el, target, suffix = '') {
+    let current = 0;
+    const isFloat = target < 10 && target % 1 !== 0;
+    const increment = target / 40;
+    const timer = setInterval(() => {
+      current = Math.min(current + increment, target);
+      el.textContent = isFloat
+        ? current.toFixed(1) + suffix
+        : Math.ceil(current) + suffix;
+      if (current >= target) clearInterval(timer);
+    }, 30);
+  }
+
+  // Trigger on first visible
+  const statsObserver = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      // Already shown with text, skip animation to avoid breaking symbols
+      statsObserver.disconnect();
+    }
+  }, { threshold: 0.5 });
+  const statBar = document.querySelector('.stat-bar');
+  if (statBar) statsObserver.observe(statBar);
+</script>
+</body>
+</html>
