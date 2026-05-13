@@ -39,7 +39,6 @@
     overflow-x: hidden;
   }
 
-  /* Scan line overlay */
   body::before {
     content: '';
     position: fixed;
@@ -545,23 +544,6 @@
     overflow-x: auto;
   }
 
-  .arch-box {
-    border: 1px solid var(--border);
-    padding: 16px 20px;
-    margin: 8px 0;
-    position: relative;
-  }
-
-  .arch-box.primary { border-color: var(--green); }
-  .arch-box.secondary { border-color: var(--border); }
-
-  .arch-arrow {
-    text-align: center;
-    color: var(--text-dim);
-    font-size: 16px;
-    line-height: 1.4;
-  }
-
   /* ─── FUTURE ─── */
   .future-list {
     list-style: none;
@@ -635,6 +617,7 @@
     border-bottom: 1px solid var(--border);
     padding-bottom: 2px;
     transition: color 0.2s, border-color 0.2s;
+    cursor: pointer;
   }
 
   .footer-links a:hover { color: var(--green); border-color: var(--green); }
@@ -709,22 +692,11 @@
     animation: pulse 2s ease-out infinite;
   }
 
-  /* ─── OFFSET FOR NAV ─── */
   header { padding-top: 110px; }
 
-  /* ─── HIGHLIGHT ─── */
   .hl { color: var(--green); }
   .hl-orange { color: var(--orange); }
 
-  /* ─── DIVIDER ─── */
-  .divider {
-    height: 1px;
-    background: linear-gradient(90deg, var(--border), var(--green-dim), var(--border));
-    margin: 32px 0;
-    opacity: 0.5;
-  }
-
-  /* RESPONSIVE */
   @media (max-width: 700px) {
     main { padding: 0 20px 60px; }
     header { padding: 80px 20px 40px; }
@@ -1108,49 +1080,14 @@ pallet_system/
   <div class="footer-inner">
     <div class="footer-title">⚡ SYSTEM</div>
     <div class="footer-sub">Industrial AI built for the real world.</div>
-
     <div class="footer-links">
-      <a href="https://my.linkedin.com/in/qaisara-mardhiah"
-         target="_blank"
-         rel="noopener noreferrer">
-        LinkedIn
-      </a>
-
-      <a href="https://qaisaram.github.io/PALLET-INSPECTION-SYSTEM/"
-         target="_blank"
-         rel="noopener noreferrer">
-        Portfolio
-      </a>
-
-      <a href="https://github.com/qaisaraM/PALLET-INSPECTION-SYSTEM"
-         target="_blank"
-         rel="noopener noreferrer">
-        GitHub
-      </a>
+      <a href="https://linkedin.com/in/qaisara-mardhiah" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="https://qaisaram.github.io/PALLET-INSPECTION-SYSTEM/" target="_blank" rel="noopener noreferrer">Portfolio</a>
+      <a href="https://github.com/qaisaraM/PALLET-INSPECTION-SYSTEM" target="_blank" rel="noopener noreferrer">GitHub</a>
     </div>
-
     <div class="footer-copy">Built with precision · Deployed in production</div>
   </div>
 </footer>
-
-<!-- SAFETY SCRIPT (prevents SPA/router hijack issues) -->
-<script>
-document.addEventListener("click", function (e) {
-  const link = e.target.closest("a");
-
-  if (!link) return;
-
-  const href = link.getAttribute("href");
-
-  // ignore empty or internal anchors
-  if (!href || href.startsWith("#")) return;
-
-  // force correct behavior for external links
-  if (href.startsWith("http")) {
-    e.preventDefault();
-    window.open(href, "_blank", "noopener,noreferrer");
-  }
-});
 
 <script>
   // Intersection Observer for scroll reveals
@@ -1168,30 +1105,6 @@ document.addEventListener("click", function (e) {
   document.querySelectorAll('.pipeline-step').forEach((step, i) => {
     step.style.transitionDelay = `${i * 80}ms`;
   });
-
-  // Animated counters for stat bar
-  function animateCount(el, target, suffix = '') {
-    let current = 0;
-    const isFloat = target < 10 && target % 1 !== 0;
-    const increment = target / 40;
-    const timer = setInterval(() => {
-      current = Math.min(current + increment, target);
-      el.textContent = isFloat
-        ? current.toFixed(1) + suffix
-        : Math.ceil(current) + suffix;
-      if (current >= target) clearInterval(timer);
-    }, 30);
-  }
-
-  // Trigger on first visible
-  const statsObserver = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting) {
-      // Already shown with text, skip animation to avoid breaking symbols
-      statsObserver.disconnect();
-    }
-  }, { threshold: 0.5 });
-  const statBar = document.querySelector('.stat-bar');
-  if (statBar) statsObserver.observe(statBar);
 </script>
 </body>
 </html>
