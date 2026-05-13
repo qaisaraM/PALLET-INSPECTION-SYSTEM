@@ -1108,14 +1108,49 @@ pallet_system/
   <div class="footer-inner">
     <div class="footer-title">⚡ SYSTEM</div>
     <div class="footer-sub">Industrial AI built for the real world.</div>
+
     <div class="footer-links">
-      <a href="https://my.linkedin.com/in/qaisara-mardhiah" target="_blank">LinkedIn</a>
-      <a href="https://qaisaram.github.io/PALLET-INSPECTION-SYSTEM/" target="_blank">Portfolio</a>
-      <a href="https://github.com/qaisaraM/PALLET-INSPECTION-SYSTEM" target="_blank">GitHub</a>
+      <a href="https://my.linkedin.com/in/qaisara-mardhiah"
+         target="_blank"
+         rel="noopener noreferrer">
+        LinkedIn
+      </a>
+
+      <a href="https://qaisaram.github.io/PALLET-INSPECTION-SYSTEM/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Portfolio
+      </a>
+
+      <a href="https://github.com/qaisaraM/PALLET-INSPECTION-SYSTEM"
+         target="_blank"
+         rel="noopener noreferrer">
+        GitHub
+      </a>
     </div>
+
     <div class="footer-copy">Built with precision · Deployed in production</div>
   </div>
 </footer>
+
+<!-- SAFETY SCRIPT (prevents SPA/router hijack issues) -->
+<script>
+document.addEventListener("click", function (e) {
+  const link = e.target.closest("a");
+
+  if (!link) return;
+
+  const href = link.getAttribute("href");
+
+  // ignore empty or internal anchors
+  if (!href || href.startsWith("#")) return;
+
+  // force correct behavior for external links
+  if (href.startsWith("http")) {
+    e.preventDefault();
+    window.open(href, "_blank", "noopener,noreferrer");
+  }
+});
 
 <script>
   // Intersection Observer for scroll reveals
