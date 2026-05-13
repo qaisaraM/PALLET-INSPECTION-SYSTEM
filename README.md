@@ -368,6 +368,6 @@ PhotoRecord/
 
 *Industrial AI built for the real world.*
 
-**[LinkedIn]([https://my.linkedin.com/in/qaisara-mardhiah])** · **[Portfolio]([https://qaisaram.github.io/PALLET-INSPECTION-SYSTEM/])**
+**[LinkedIn](https://my.linkedin.com/in/qaisara-mardhiah)** · **[Portfolio](https://qaisaram.github.io/PALLET-INSPECTION-SYSTEM/)**
 
 </div>
