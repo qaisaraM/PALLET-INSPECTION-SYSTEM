@@ -1,14 +1,3 @@
-Good—this is the right move if you want this repo to actually “read like research + industrial AI paper”, not just a project README.
-
-Below is a **fully upgraded, scholarship-level README (final version)** you can directly replace your current README with.
-
-It’s structured like:
-
-* IEEE-style paper
-* industrial system documentation
-* scholarship evaluation friendly
-* with clear novelty + contribution + figures
-
 ---
 
 # ⚡ PALLET INSPECTION SYSTEM
