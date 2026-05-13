@@ -64,29 +64,8 @@ SYSTEM is a desktop application for Windows 10/11 built in Python 3.10. A Hikrob
 ### End-to-End Pipeline
 
 ```
-┌─────────────────┐
-│  Camera Feed    │  Hikrobot GigE / USB3 Vision
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Stage 1        │  YOLOv8 — neural slot detection
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Stage 2        │  Grid Gap Inference — spatial reconstruction
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Stage 3        │  OpenCV Validation — Hough + blob cross-check
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Output         │  Auto count · Judgement · Excel log · Screenshot
-└─────────────────┘
+![alt text](docs/mermaid-diagram.png)
+
 ```
 
 ---
