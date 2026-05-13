@@ -64,7 +64,7 @@ SYSTEM is a desktop application for Windows 10/11 built in Python 3.10. A Hikrob
 ### End-to-End Pipeline
 
 ```
-![End-to-End Pipeline](https://raw.githubusercontent.com/qaisaraM/PALLET-INSPECTION-SYSTEM/main/docs/mermaid-diagram.png)
+![End-to-End Pipeline](docs/mermaid-diagram.png)
 
 ```
 
