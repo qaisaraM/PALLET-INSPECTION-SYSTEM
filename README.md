@@ -61,12 +61,14 @@ SYSTEM is a desktop application for Windows 10/11 built in Python 3.10. A Hikrob
 3. Press SAVE   →  Excel log + screenshot generated
 ```
 
+
 ### End-to-End Pipeline
 
-```
 ![End-to-End Pipeline](https://raw.githubusercontent.com/qaisaraM/PALLET-INSPECTION-SYSTEM/main/docs/mermaid-diagram.png)
 
-```
+**Figure 1.** End-to-end pipeline of the proposed industrial pallet inspection system using YOLOv8, spatial grid inference, and classical computer vision validation.
+
+
 
 ---
 
